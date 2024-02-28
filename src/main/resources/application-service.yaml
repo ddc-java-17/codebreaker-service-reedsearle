@@ -1,0 +1,14 @@
+server:
+  error:
+    include-message: always
+  forward-headers-strategy: native
+  port: 18181
+  servlet:
+    context-path: /codebreaker-world
+
+spring:
+  application:
+    name: service
+  jackson:
+    deserialization:
+      accept-float-as-int: false

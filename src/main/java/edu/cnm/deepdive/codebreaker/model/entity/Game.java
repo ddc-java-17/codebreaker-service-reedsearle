@@ -1,21 +1,33 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.time.Instant;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.lang.NonNull;
 
 @Entity
+@Table(
+    indexes = {
+        @Index(columnList = "user_id, created")
+    }
+)
 public class Game {
 
   public static final int MAX_CODE_LENGTH = 12;
@@ -52,6 +64,12 @@ public class Game {
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
   @JoinColumn(name = "user_id", nullable = false, updatable = false)
   private User user;
+
+  @NonNull
+  @OneToMany(mappedBy = "game", fetch = FetchType.EAGER,
+      cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("created ASC")
+  private final List<Guess> guesses = new LinkedList<>();
 
   @NonNull
   public Long getId() {
@@ -101,6 +119,11 @@ public class Game {
 
   public void setUser(@NonNull User user) {
     this.user = user;
+  }
+
+  @NonNull
+  public List<Guess> getGuesses() {
+    return guesses;
   }
 
   @PrePersist
