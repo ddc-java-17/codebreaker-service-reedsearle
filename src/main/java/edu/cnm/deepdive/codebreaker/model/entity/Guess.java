@@ -1,5 +1,11 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,39 +29,47 @@ import org.springframework.lang.NonNull;
         @Index(columnList = "game_id, created")
     }
 )
+@JsonInclude(Include.NON_NULL)
+@JsonPropertyOrder({"key", "created", "guessText", "correct", "close", "solution"})
 public class Guess {
   public static final int MAX_CODE_LENGTH = 12;
-
 
   @NonNull
   @Id
   @GeneratedValue
   @Column(name = "guess_id", nullable = false, updatable = false)
+  @JsonIgnore
   private Long id;
 
   @NonNull
   @Column(name = "external_key", nullable = false, updatable = false, unique = true, columnDefinition = "UUID")
+  @JsonProperty(access = Access.READ_ONLY)
   private UUID key;
 
   @NonNull
   @Column(nullable = false, updatable = false)
   @CreationTimestamp
   @Temporal(TemporalType.TIMESTAMP)
+  @JsonProperty(access = Access.READ_ONLY)
   private Instant created;
 
   @NonNull
   @Column(nullable = false, updatable = false, length = MAX_CODE_LENGTH)
+  @JsonProperty(access = Access.READ_WRITE)
   private String guessText;
 
   @Column(nullable = false, updatable = false)
+  @JsonProperty(access = Access.READ_ONLY)
   private int correct;
 
   @Column(nullable = false, updatable = false)
+  @JsonProperty(access = Access.READ_ONLY)
   private int close;
 
   @NonNull
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
   @JoinColumn(name = "game_id", nullable = false, updatable = false)
+  @JsonIgnore
   private Game game;
 
   @NonNull
@@ -105,6 +119,10 @@ public class Guess {
 
   public void setGame(@NonNull Game game) {
     this.game = game;
+  }
+
+  public boolean isSolution() {
+    return correct == game.getLength();
   }
 
   @PrePersist

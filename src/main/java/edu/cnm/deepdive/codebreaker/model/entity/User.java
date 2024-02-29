@@ -1,5 +1,11 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,28 +28,34 @@ import org.springframework.lang.NonNull;
 
 @Entity
 @Table(name = "user_profile")
+@JsonInclude(Include.NON_NULL)
+@JsonPropertyOrder({"key", "created", "modified", "display_name"})
 public class User {
 
   @Id
   @NonNull
   @GeneratedValue
   @Column(name = "user_profile_id", nullable = false, updatable = false)
+  @JsonIgnore
   private Long id;
 
   @NonNull
   @Column(name = "external_key", nullable = false, updatable = false, unique = true, columnDefinition = "UUID")
+  @JsonProperty(access = Access.READ_ONLY)
   private UUID key;
 
   @NonNull
   @Column(nullable = false, updatable = false)
   @CreationTimestamp
   @Temporal(TemporalType.TIMESTAMP)
+  @JsonProperty(access = Access.READ_ONLY)
   private Instant created;
 
   @NonNull
   @Column(nullable = false)
   @UpdateTimestamp
   @Temporal(TemporalType.TIMESTAMP)
+  @JsonProperty(access = Access.READ_ONLY)
   private Instant modified;
 
   @NonNull
@@ -52,12 +64,14 @@ public class User {
 
   @NonNull
   @Column(nullable = false, updatable = false, unique = true, length = 30)
+  @JsonIgnore
   private String oauthKey;
 
   @NonNull
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY,
       cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("created DESC")
+  @JsonIgnore
   private final List<Game> games = new LinkedList<>();
 
   @NonNull
