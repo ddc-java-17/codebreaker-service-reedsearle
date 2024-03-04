@@ -21,6 +21,9 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,12 +63,19 @@ public class Game {
 
   @Column(nullable = false, updatable = false)
   @JsonProperty(access = Access.READ_WRITE)
+  @Min(1)
+  @Max(MAX_CODE_LENGTH)
   private int length;
 
   @NonNull
   @Column(nullable = false, updatable = false, length = MAX_POOL_LENGTH)
   @JsonProperty(access = Access.READ_WRITE)
+  @Size(max = MAX_POOL_LENGTH)
   private String pool;
+
+  @Column(nullable = false, updatable = false)
+  @JsonProperty(access = Access.READ_ONLY)
+  private int poolSize;
 
   @NonNull
   @Column(nullable = false, updatable = false, length = MAX_CODE_LENGTH) // TODO: 2/28/2024 Investigate how database determines length
@@ -115,6 +125,14 @@ public class Game {
 
   public void setPool(@NonNull String pool) {
     this.pool = pool;
+  }
+
+  public int getPoolSize() {
+    return poolSize;
+  }
+
+  public void setPoolSize(int poolSize) {
+    this.poolSize = poolSize;
   }
 
   @NonNull
