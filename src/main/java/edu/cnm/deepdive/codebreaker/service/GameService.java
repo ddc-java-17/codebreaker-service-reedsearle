@@ -79,7 +79,7 @@ public class GameService implements AbstractGameService {
   @Override
   public Guess getGuess(UUID gameKey, UUID guessKey, User user) {
     return guessRepository
-        .findGuessByGameAndGuessKeysAndUser(guessKey, gameKey, user)
+        .findGuessByGameAndGuessKeysAndUser(gameKey, guessKey, user)
         .orElseThrow();
   }
 

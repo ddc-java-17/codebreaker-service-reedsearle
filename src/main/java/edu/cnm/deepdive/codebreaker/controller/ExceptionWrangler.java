@@ -1,5 +1,7 @@
 package edu.cnm.deepdive.codebreaker.controller;
 
+import edu.cnm.deepdive.codebreaker.service.GameCompletedException;
+import edu.cnm.deepdive.codebreaker.service.InvalidGuessException;
 import edu.cnm.deepdive.codebreaker.service.InvalidPoolException;
 import java.util.NoSuchElementException;
 import org.springframework.http.HttpStatus;
@@ -18,11 +20,11 @@ public class ExceptionWrangler {
   @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Invalid pool")
   public void invalidPool() {}
 
-  @ExceptionHandler
+  @ExceptionHandler(InvalidGuessException.class)
   @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Invalid guess length or characters")
   public void invalidGuess() {}
 
-  @ExceptionHandler
+  @ExceptionHandler(GameCompletedException.class)
   @ResponseStatus(code = HttpStatus.CONFLICT, reason = "Game already solved")
   public void gameAlreadySolved() {}
 
