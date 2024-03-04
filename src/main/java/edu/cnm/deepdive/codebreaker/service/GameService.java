@@ -5,7 +5,10 @@ import edu.cnm.deepdive.codebreaker.model.dao.GuessRepository;
 import edu.cnm.deepdive.codebreaker.model.entity.Game;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import edu.cnm.deepdive.codebreaker.model.entity.User;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
@@ -64,7 +67,9 @@ public class GameService implements AbstractGameService {
         .findGameByKeyAndUser(key, user)
         .map((game) -> {
           validateGuess(guess, game);
-          // TODO: 3/4/2024 Set close and correct fields 
+          int[] evaluation = evaluate(game.getSecretCode(), guess.getGuessText());
+          guess.setCorrect(evaluation[0]);
+          guess.setClose(evaluation[1]);
           guess.setGame(game);
           return guessRepository.save(guess);
         })
@@ -73,7 +78,9 @@ public class GameService implements AbstractGameService {
 
   @Override
   public Guess getGuess(UUID gameKey, UUID guessKey, User user) {
-    throw new UnsupportedOperationException(); // TODO: 2024-03-01 Implement query based on game, guess, & user.
+    return guessRepository
+        .findGuessByGameAndGuessKeysAndUser(guessKey, gameKey, user)
+        .orElseThrow();
   }
 
   private static boolean isValidPoolCodePoint(int codePoint) {
@@ -100,6 +107,30 @@ public class GameService implements AbstractGameService {
         .anyMatch((codePoint)-> !validCodePoints.contains(codePoint))) {
       throw new InvalidGuessException("Guess may only contain characters in the pool");
     }
+  }
+
+  private int[] evaluate (String code, String guess){
+    int[] codeCodePoints = code.codePoints().toArray();
+    int[] guessCodePoints = guess.codePoints().toArray();
+    Map<Integer, Integer> codeOccurences = new HashMap<>();
+    Map<Integer, Integer> guessOccurences = new HashMap<>();
+    int correct = 0;
+    for(int i = 0; i < codeCodePoints.length; i++) {
+      int codeCodePoint = codeCodePoints[i];
+      int guessCodePoint = guessCodePoints[i];
+      if(codeCodePoint == guessCodePoint){
+        correct++;
+      } else {
+        codeOccurences.put(codeCodePoint, 1 + codeOccurences.getOrDefault(codeCodePoint, 0));
+        guessOccurences.put(guessCodePoint, 1 + guessOccurences.getOrDefault(guessCodePoint, 0));
+      }
+    }
+    int close = guessOccurences
+        .entrySet()
+        .stream()
+        .mapToInt((entry)->Math.min(entry.getValue(), codeOccurences.getOrDefault(entry.getKey(), 0)))
+        .sum();
+    return new int[]{correct, close};
   }
 
 }
