@@ -3,6 +3,7 @@ package edu.cnm.deepdive.codebreaker.service;
 import edu.cnm.deepdive.codebreaker.model.dao.UserRepository;
 import edu.cnm.deepdive.codebreaker.model.entity.User;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +26,7 @@ public class UserService implements AbstractUserService {
         .orElseGet(()->{
           User user = new User();
           user.setOauthKey(oauthKey);
-          user.setDisplay_name(displayName);
+          user.setDisplayName(displayName);
           // TODO: 2/29/2024 Assign any additional fields of user.
           return userRepository.save(user);
         });
@@ -44,10 +45,10 @@ public class UserService implements AbstractUserService {
     return userRepository
         .findById(getCurrentUser().getId())
         .map((user)->{
-          String displayName = received.getDisplay_name();
+          String displayName = received.getDisplayName();
           //noinspection ConstantValue
           if (displayName != null) {
-            user.setDisplay_name(displayName);
+            user.setDisplayName(displayName);
           }          
           return userRepository.save(user);
         })
@@ -59,4 +60,38 @@ public class UserService implements AbstractUserService {
     return userRepository
         .findUserByKey(key);// TODO: 2/29/2024 Apply access control rules as appropriate 
   }
+
+  @Override
+  public boolean follow(UUID followingKey, User requester, boolean following) {
+    return userRepository
+        .findById(requester.getId())
+        .flatMap((user)-> userRepository
+            .findUserByKey(followingKey)
+            .map((followed)->{
+              if(following){
+                user.getFollowedUsers().add(followed);
+              } else {
+                user.getFollowedUsers().remove(followed);
+              }
+              return userRepository.save(user).getFollowedUsers().contains(followed);
+            }))
+        .orElseThrow();
+  }
+
+  @Override
+  public Set<User> getFollows(User requester) {
+    return userRepository
+        .findById(requester.getId())
+        .map(User::getFollowedUsers)
+        .orElseThrow();
+  }
+
+  @Override
+  public Set<User> getFollowers(User requester) {
+    return userRepository
+        .findById(requester.getId())
+        .map(User::getFollowingUsers)
+        .orElseThrow();
+  }
+
 }
