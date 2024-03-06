@@ -33,6 +33,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.lang.NonNull;
 
+/**
+ *
+ */
 @Entity
 @Table(name = "user_profile")
 @JsonInclude(Include.NON_NULL)
@@ -98,6 +101,11 @@ public class User implements UserPublic {
   @JsonIgnore
   private final Set<User> followingUsers = new LinkedHashSet<>();
 
+  /**
+   * Returns primary key for the user
+   *
+   * @return
+   */
   @NonNull
   public Long getId() {
     return id;
@@ -125,6 +133,11 @@ public class User implements UserPublic {
     return displayName;
   }
 
+  /**
+   * Assigns the specified value to the displayvname of the user
+   *
+   * @param display_name
+   */
   public void setDisplayName(@NonNull String display_name) {
     this.displayName = display_name;
   }
