@@ -8,6 +8,6 @@ public interface RankingRepository extends ReadOnlyRepository<Ranking, RankingId
 
   List<Ranking> findAllByPoolSizeAndLengthOrderByAvgGuessCountAscAvgDurationAsc(int poolSize, int length);
 
-  List<Ranking> findAllByPoolSizeAndLengthAndGameCountAfterOrderByAvgGuessCountAscAvgDurationAsc(int poolSize, int length, int gameCountThreshold);
+  List<Ranking> findAllByPoolSizeAndLengthAndGameCountGreaterThanEqualOrderByAvgGuessCountAscAvgDurationAsc(int poolSize, int length, int gameCountThreshold);
 
 }
