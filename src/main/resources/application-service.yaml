@@ -17,3 +17,8 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: "https://accounts.google.com"
+  jpa:
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
