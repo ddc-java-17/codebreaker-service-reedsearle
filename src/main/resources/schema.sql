@@ -12,7 +12,7 @@ FROM
         SELECT
             gm.game_id,
             COUNT(*) AS guess_count,
-            (MAX(gs.created) - MIN(gs.created)) AS duration,
+            DATEDIFF('ms', MIN(gs.created), MAX(gs.created)) AS duration,
             MAX(gs.correct) AS correct
         FROM
             game AS gm

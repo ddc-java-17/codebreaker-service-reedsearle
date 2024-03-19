@@ -36,11 +36,12 @@ import org.springframework.lang.NonNull;
 /**
  *
  */
+@SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(name = "user_profile")
 @JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder({"key", "created", "modified", "display_name"})
-public class User implements UserPublic {
+public class User {
 
   @Id
   @NonNull
@@ -111,7 +112,6 @@ public class User implements UserPublic {
     return id;
   }
 
-  @Override
   @NonNull
   public UUID getKey() {
     return key;
@@ -127,7 +127,6 @@ public class User implements UserPublic {
     return modified;
   }
 
-  @Override
   @NonNull
   public String getDisplayName() {
     return displayName;
