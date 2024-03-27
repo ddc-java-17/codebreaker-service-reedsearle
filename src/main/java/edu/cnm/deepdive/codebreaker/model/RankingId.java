@@ -1,12 +1,20 @@
 package edu.cnm.deepdive.codebreaker.model;
 
+import edu.cnm.deepdive.codebreaker.model.entity.User;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Objects;
 
+@SuppressWarnings({"JpaDataSourceORMInspection", "unused"})
+@Embeddable
 public class RankingId implements Serializable {
 
-  private long userId;
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "user_id")
+  private User user;
 
   private int poolSize;
 
@@ -15,14 +23,14 @@ public class RankingId implements Serializable {
   public RankingId() {
   }
 
-  public RankingId(long userId, int poolSize, int length) {
-    this.userId = userId;
+  public RankingId(User user, int poolSize, int length) {
+    this.user = user;
     this.poolSize = poolSize;
     this.length = length;
   }
 
-  public long getUserId() {
-    return userId;
+  public User getUser() {
+    return user;
   }
 
   public int getPoolSize() {
@@ -35,7 +43,7 @@ public class RankingId implements Serializable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(userId, poolSize, length);
+    return Objects.hash(user, poolSize, length);
   }
 
   @Override
@@ -44,7 +52,7 @@ public class RankingId implements Serializable {
     if(this==obj) {
       equals = true;
     } else if(obj instanceof RankingId other) {
-      equals = (this.userId == other.userId
+      equals = (this.user.equals(other.user)
           && this.poolSize == other.poolSize
           && this.length == other.length);
     } else {
